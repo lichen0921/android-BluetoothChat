@@ -16,6 +16,7 @@
 
 package com.example.android.bluetoothchat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -42,7 +43,7 @@ import java.util.Set;
  * by the user, the MAC address of the device is sent back to the parent
  * Activity in the result Intent.
  */
-public class DeviceListActivity extends Activity {
+public class DeviceListActivity extends BaseActivity {
 
     /**
      * Tag for Log
@@ -145,20 +146,45 @@ public class DeviceListActivity extends Activity {
     private void doDiscovery() {
         Log.d(TAG, "doDiscovery()");
 
-        // Indicate scanning in the title
-        setProgressBarIndeterminateVisibility(true);
-        setTitle(R.string.scanning);
+        requestPermissions(new String[]{
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, new OnPermissionCallback() {
+            @Override
+            public void onGranted() {
+                android.util.Log.e("abc","onGranted");
+                // 已经授权
 
-        // Turn on sub-title for new devices
-        findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
 
-        // If we're already discovering, stop it
-        if (mBtAdapter.isDiscovering()) {
-            mBtAdapter.cancelDiscovery();
-        }
+                // Indicate scanning in the title
+                setProgressBarIndeterminateVisibility(true);
+                setTitle(R.string.scanning);
 
-        // Request discover from BluetoothAdapter
-        mBtAdapter.startDiscovery();
+                // Turn on sub-title for new devices
+                findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
+
+                // If we're already discovering, stop it
+                if (mBtAdapter.isDiscovering()) {
+                    mBtAdapter.cancelDiscovery();
+                }
+
+                // Request discover from BluetoothAdapter
+                mBtAdapter.startDiscovery();
+
+
+
+
+            }
+
+            @Override
+            public void onDenied() {
+                android.util.Log.e("abc","onDenied");
+            }
+        });
+
+
     }
 
     /**

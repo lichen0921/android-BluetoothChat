@@ -30,6 +30,7 @@ import com.example.android.common.logger.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 /**
@@ -386,7 +387,7 @@ public class BluetoothChatService {
      * succeeds or fails.
      */
     private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
+        private BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
         private String mSocketType;
 
@@ -412,6 +413,7 @@ public class BluetoothChatService {
             mState = STATE_CONNECTING;
         }
 
+        @Override
         public void run() {
             Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
             setName("ConnectThread" + mSocketType);
@@ -429,8 +431,20 @@ public class BluetoothChatService {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                    Log.e(TAG, "unable to close() " + mSocketType +
+                    Log.e("abc", "unable to close() " + mSocketType +
                             " socket during connection failure", e2);
+                    try {
+                        Method m = mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
+                        mmSocket = (BluetoothSocket) m.invoke(mmDevice, 1);
+                        mmSocket.connect();
+                    } catch (Exception e3) {
+                        Log.e("abc", e3.toString());
+                        try{
+                            mmSocket.close();
+                        }catch (IOException ie){
+                            Log.e("abc", ie.getMessage());
+                        }
+                    }
                 }
                 connectionFailed();
                 return;
