@@ -16,6 +16,7 @@
 
 package com.example.android.bluetoothchat;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -275,6 +276,7 @@ public class BluetoothChatFragment extends Fragment {
     /**
      * The Handler that gets information back from the BluetoothChatService
      */
+    @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -292,6 +294,8 @@ public class BluetoothChatFragment extends Fragment {
                         case BluetoothChatService.STATE_LISTEN:
                         case BluetoothChatService.STATE_NONE:
                             setStatus(R.string.title_not_connected);
+                            break;
+                        default:
                             break;
                     }
                     break;
@@ -321,10 +325,13 @@ public class BluetoothChatFragment extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                     }
                     break;
+                default:
+                    break;
             }
         }
     };
 
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CONNECT_DEVICE_SECURE:
@@ -351,6 +358,8 @@ public class BluetoothChatFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                     getActivity().finish();
                 }
+            default:
+                break;
         }
     }
 
@@ -395,6 +404,8 @@ public class BluetoothChatFragment extends Fragment {
                 ensureDiscoverable();
                 return true;
             }
+            default:
+                break;
         }
         return false;
     }

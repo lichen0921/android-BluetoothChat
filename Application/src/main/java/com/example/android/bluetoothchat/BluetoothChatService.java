@@ -104,6 +104,8 @@ public class BluetoothChatService {
     /**
      * Start the chat service. Specifically start AcceptThread to begin a
      * session in listening (server) mode. Called by the Activity onResume()
+     * 启动 AcceptThread ，用以接受连接请求
+     * 当连接完成后，AcceptThread会结束
      */
     public synchronized void start() {
         Log.d(TAG, "start");
@@ -135,6 +137,7 @@ public class BluetoothChatService {
 
     /**
      * Start the ConnectThread to initiate a connection to a remote device.
+     * 启动连接
      *
      * @param device The BluetoothDevice to connect
      * @param secure Socket Security type - Secure (true) , Insecure (false)
@@ -165,6 +168,7 @@ public class BluetoothChatService {
 
     /**
      * Start the ConnectedThread to begin managing a Bluetooth connection
+     * 连接完成
      *
      * @param socket The BluetoothSocket on which the connection was made
      * @param device The BluetoothDevice that has been connected
@@ -250,7 +254,9 @@ public class BluetoothChatService {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != STATE_CONNECTED) return;
+            if (mState != STATE_CONNECTED) {
+                return;
+            }
             r = mConnectedThread;
         }
         // Perform the write unsynchronized
@@ -301,7 +307,9 @@ public class BluetoothChatService {
      * (or until cancelled).
      */
     private class AcceptThread extends Thread {
-        // The local server socket
+        /**
+         * The local server socket
+         */
         private final BluetoothServerSocket mmServerSocket;
         private String mSocketType;
 
@@ -325,6 +333,7 @@ public class BluetoothChatService {
             mState = STATE_LISTEN;
         }
 
+        @Override
         public void run() {
             Log.d(TAG, "Socket Type: " + mSocketType +
                     "BEGIN mAcceptThread" + this);
@@ -361,6 +370,8 @@ public class BluetoothChatService {
                                 } catch (IOException e) {
                                     Log.e(TAG, "Could not close unwanted socket", e);
                                 }
+                                break;
+                            default:
                                 break;
                         }
                     }
@@ -496,6 +507,7 @@ public class BluetoothChatService {
             mState = STATE_CONNECTED;
         }
 
+        @Override
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
